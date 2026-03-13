@@ -51,6 +51,7 @@ function FreeFlightCamera:init()
 	self._con:add_trigger("freeflight_modifier_toggle", callback(self, self, "next_modifier_toggle"))
 	self._con:add_trigger("freeflight_modifier_up", callback(self, self, "curr_modifier_up"))
 	self._con:add_trigger("freeflight_modifier_down", callback(self, self, "curr_modifier_down"))
+	self._con:add_trigger("toggle_chat", callback(self, self, "_toggle_chatinput"))
 end
 
 function FreeFlightCamera:setup_gui()
@@ -274,10 +275,18 @@ function FreeFlightCamera:pause_game()
 end
 
 function FreeFlightCamera:quick_action_execute()
+	if managers.hud and managers.hud._chat_focus then
+		return
+	end
+
 	self:current_action():do_action()
 end
 
 function FreeFlightCamera:next_modifier_toggle()
+	if managers.hud and managers.hud._chat_focus then
+		return
+	end
+
 	if self:modifiers_are_visible() then
 		self._modifier_gui[self._modifier_index]:child(0):set_color(DESELECTED)
 		self._modifier_index = self._modifier_index % #self._modifiers + 1
@@ -334,7 +343,21 @@ function FreeFlightCamera:unpause_game()
 	Application:set_pause(false)
 end
 
+function FreeFlightCamera:_toggle_chatinput()
+	if managers.menu and managers.menu:active_menu() then
+		return
+	end
+
+	if managers.hud then
+		managers.hud:toggle_chatinput()
+	end
+end
+
 function FreeFlightCamera:draw_actions()
+	if managers.hud and managers.hud._chat_focus then
+		return
+	end
+
 	if not self:actions_are_visible() then
 		for i, panel in ipairs(self._action_gui) do
 			local text = panel:child(0)
@@ -384,6 +407,10 @@ function FreeFlightCamera:actions_are_visible()
 end
 
 function FreeFlightCamera:action_toggle()
+	if managers.hud and managers.hud._chat_focus then
+		return
+	end
+
 	if self:actions_are_visible() then
 		self._action_gui[self._action_index]:child(0):set_color(DESELECTED)
 		self._action_index = self._action_index % #self._actions + 1
@@ -393,6 +420,10 @@ function FreeFlightCamera:action_toggle()
 end
 
 function FreeFlightCamera:action_execute()
+	if managers.hud and managers.hud._chat_focus then
+		return
+	end
+
 	if self:actions_are_visible() then
 		self:current_action():do_action()
 	end
